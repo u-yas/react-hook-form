@@ -299,32 +299,38 @@ import { InfiniteType, NullableInfiniteType } from '../../__fixtures__';
   }
 
   /** TS should be able to infer the generic */ {
-    const fn = <P extends PathString>(
-      path: AutoCompletePath<InfiniteType<string>, P>,
+    const fn = <T, P extends PathString>(
+      _obj: T,
+      path: AutoCompletePath<T, P>,
     ): P => path as never;
 
-    const actual = fn('foo.bar');
+    const actual = fn(_ as InfiniteType<string>, 'foo.bar');
     expectType<'foo.bar'>(actual);
   }
 
   /** TS should be able to infer the generic from an object property */ {
-    interface FnProps<P extends PathString> {
-      path: AutoCompletePath<InfiniteType<string>, P>;
+    interface FnProps<T, P extends PathString> {
+      obj: T;
+      path: AutoCompletePath<T, P>;
     }
-    const fn = <P extends PathString>({ path }: FnProps<P>): P => path as never;
+    const fn = <T, P extends PathString>({ path }: FnProps<T, P>): P =>
+      path as never;
 
-    const actual = fn({ path: 'foo.bar' });
+    const actual = fn({ obj: _ as InfiniteType<string>, path: 'foo.bar' });
     expectType<'foo.bar'>(actual);
   }
 
   /** TS should be able to infer the generic from a nested object property */ {
-    interface FnProps<P extends PathString> {
-      nested: { path: AutoCompletePath<InfiniteType<string>, P> };
+    interface FnProps<T, P extends PathString> {
+      nested: { obj: T; path: AutoCompletePath<T, P> };
     }
-    const fn = <P extends PathString>({ nested: { path } }: FnProps<P>): P =>
-      path as never;
+    const fn = <T, P extends PathString>({
+      nested: { path },
+    }: FnProps<T, P>): P => path as never;
 
-    const actual = fn({ nested: { path: 'foo.bar' } });
+    const actual = fn({
+      nested: { obj: _ as InfiniteType<string>, path: 'foo.bar' },
+    });
     expectType<'foo.bar'>(actual);
   }
 
